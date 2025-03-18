@@ -1,20 +1,39 @@
 <script setup>
+import { computed, ref } from "vue";
 import AppLayout from "@/Layouts/AppLayout.vue";
-import { Link, router } from "@inertiajs/vue3"; // Import router
+import { Link, router } from "@inertiajs/vue3";
 import { ShoppingCartIcon, ArrowLeftIcon } from "@heroicons/vue/24/solid";
 
-const props = defineProps({ product: Object });
+const props = defineProps({
+  product: Object,
+  hasPendingOrder: Boolean,
+});
 
-function buyNow() {
+const isLoading = ref(false);
+
+const buyNow = () => {
   if (!props.product) {
     alert("Product not found!");
     return;
   }
 
-  router.visit(`/payment/${props.product.id}`);
-}
-</script>
+  if (props.hasPendingOrder) {
+    alert("This product has a pending order!");
+    return;
+  }
 
+  isLoading.value = true;
+  router.visit(`/payment/${props.product.id}`, {
+    onFinish: () => (isLoading.value = false),
+  });
+};
+
+const buyNowButtonClass = computed(() => ({
+  "bg-green-500 hover:bg-green-600": !props.hasPendingOrder,
+  "bg-gray-400 cursor-not-allowed": props.hasPendingOrder,
+  "text-white px-4 py-2 rounded shadow flex items-center space-x-2": true,
+}));
+</script>
 
 <template>
   <AppLayout title="Product Details">
@@ -29,7 +48,7 @@ function buyNow() {
         <div class="bg-white overflow-hidden shadow-xl sm:rounded-lg p-6">
           
           <!-- Product Details -->
-          <div class="flex justify-between items-center mb-4">
+          <div class="flex justify-between items-center mb-6">
             <h1 class="text-2xl font-bold">{{ product.name }}</h1>
           </div>
 
@@ -65,10 +84,12 @@ function buyNow() {
 
             <button
               @click="buyNow"
-              class="bg-green-500 text-white px-4 py-2 rounded shadow flex items-center space-x-2"
+              :disabled="hasPendingOrder || isLoading"
+              :class="buyNowButtonClass"
             >
               <ShoppingCartIcon class="w-5 h-5" />
-              <span>Buy Now</span>
+              <span v-if="!isLoading">{{ hasPendingOrder ? 'Pending Order' : 'Buy Now' }}</span>
+              <span v-else>Processing...</span>
             </button>
           </div>
           

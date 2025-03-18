@@ -32,24 +32,6 @@ function cancelOrder(orderId) {
   }
 }
 
-// Buy Now function (for cancelled orders)
-function buyNow(product) {
-  if (!product) {
-    alert("Product not found!");
-    return;
-  }
-  router.visit(`/payment/${product.id}`);
-}
-
-// Check if order reach more than 24 hr
-function isOrderExpired(order) {
-  if (!order.created_at) return true;
-  const orderTime = dayjs(order.created_at);
-  const now = dayjs();
-  return now.diff(orderTime, "hour") >= 24;
-}
-
-// Delete an order (Only for Cancelled Orders)
 function deleteOrder(orderId) {
   if (confirm("Are you sure you want to delete this order?")) {
     router.delete(`/orders/${orderId}`, {
@@ -62,6 +44,14 @@ function deleteOrder(orderId) {
       },
     });
   }
+}
+
+// Check if order has expired (24+ hours)
+function isOrderExpired(order) {
+  if (!order.created_at) return true;
+  const orderTime = dayjs(order.created_at);
+  const now = dayjs();
+  return now.diff(orderTime, "hour") >= 24;
 }
 </script>
 
@@ -108,34 +98,23 @@ function deleteOrder(orderId) {
                   </span>
                 </td>
                 <td class="border px-4 py-2">
-                  <!-- Cancel Order Button (Disabled after 24 hours) -->
-                  <button
+                <!-- Cancel Order Button (Disabled after 24 hours) -->
+                <button
                     v-if="order.status === 'pending' || order.status === 'paid'"
                     @click="cancelOrder(order.id)"
                     class="bg-red-500 text-white px-4 py-2 rounded-md"
                     :disabled="isOrderExpired(order)"
                     :class="{'opacity-50 cursor-not-allowed': isOrderExpired(order)}"
-                  >
+                >
                     Cancel Order
-                  </button>
+                </button>
 
-                  <!-- Buy Now Button for Cancelled Orders -->
-                  <button
-                    v-if="order.status === 'cancelled'"
-                    @click="buyNow(order.product)"
-                    class="bg-green-500 text-white px-4 py-2 rounded-md ml-2"
-                  >
-                    Buy Now
-                  </button>
-
-                  <!-- Delete Order Button (Only for Cancelled Orders) -->
-                  <button
+                <!-- Delete Icon (Only for Canceled Orders) -->
+                <TrashIcon
                     v-if="order.status === 'cancelled'"
                     @click="deleteOrder(order.id)"
-                    class="ml-2"
-                  >
-                    <TrashIcon class="w-6 h-6 text-red-500 hover:text-red-700" />
-                  </button>
+                    class="w-6 h-6 text-red-500 hover:text-red-700 cursor-pointer ml-2"
+                />
                 </td>
               </tr>
             </tbody>

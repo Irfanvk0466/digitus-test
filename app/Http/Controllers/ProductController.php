@@ -49,7 +49,8 @@ class ProductController extends Controller
     public function show(string $id)
     {
         $product = Product::with('brand')->findOrFail($id);
-        return Inertia::render('Frontend/Product/Show', ['product' => $product]);
+        $hasPendingOrder = $product->orders()->where('status', 'pending')->exists();
+        return Inertia::render('Frontend/Product/Show', ['product' => $product,'hasPendingOrder' => $hasPendingOrder]);
     }
 
     /**

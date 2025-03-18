@@ -64,7 +64,7 @@ const logout = () => {
                             </div>
                                <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
                                 <NavLink :href="route('orders.index')" :active="route().current('orders.index')">
-                                    Orders
+                                    Order histories
                                 </NavLink>
                             </div>
                         </div>
