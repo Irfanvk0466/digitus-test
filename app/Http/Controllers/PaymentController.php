@@ -73,7 +73,6 @@ class PaymentController extends Controller
         if (isset($verificationResult['error'])) {
             return redirect()->route('products.index')->with('error', $verificationResult['error']);
         }
-    
         return redirect()->route('products.index')->with('success', 'Payment successful! Your order has been confirmed.');
     }
 
