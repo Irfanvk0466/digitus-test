@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Order;
 use App\Models\Product;
-use Illuminate\Http\Request;
+use App\Events\OrderPlaced;
 use App\Services\RazorpayService;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\Auth;
@@ -46,6 +46,7 @@ class PaymentController extends Controller
             'currency' => 'INR',
             'status' => 'pending',
         ]);
+        event(new OrderPlaced($newOrder));
         return redirect()->route('payment.show', ['orderId' => $newOrder->order_id]);
     }
 
